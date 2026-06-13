@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Hangman - Native Android Game Documentation</title>
+    <meta name="description" content="Documentation and interactive web demo for Neon Hangman, a premium native Kotlin Android app built with Jetpack Compose.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0A0B10;
+            --surface-color: rgba(22, 23, 34, 0.6);
+            --surface-hover: rgba(34, 36, 51, 0.8);
+            --border-color: #2E3147;
+            --primary-cyan: #06B6D4;
+            --secondary-indigo: #6366F1;
+            --tertiary-purple: #8B5CF6;
+            --neon-green: #10B981;
+            --neon-red: #EF4444;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.08) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        a {
+            color: var(--primary-cyan);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: var(--tertiary-purple);
+        }
+
+        /* Layout Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header Navigation */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background-color: rgba(10, 11, 16, 0.7);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--tertiary-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 28px;
+        }
+
+        nav ul a {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        nav ul a:hover, nav ul a.active {
+            color: var(--primary-cyan);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 160px 0 100px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 64px;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-bottom: 24px;
+            background: linear-gradient(to right, #ffffff, #a8aaff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        .badge-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .badge {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background-color: rgba(99, 102, 241, 0.15);
+            border: 1px solid var(--secondary-indigo);
+            color: var(--primary-cyan);
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--secondary-indigo), var(--tertiary-purple));
+            color: var(--text-primary);
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Main Content Sections */
+        section {
+            padding: 80px 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 48px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background-color: var(--primary-cyan);
+            margin-top: 12px;
+            border-radius: 2px;
+        }
+
+        /* Grid System */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+        }
+
+        /* Feature Card */
+        .card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            border-color: var(--primary-cyan);
+            transform: translateY(-4px);
+            background-color: var(--surface-hover);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: var(--primary-cyan);
+        }
+
+        .card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        /* Interactive Web Demo Section */
+        .demo-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .demo-layout {
+                grid-template-columns: 1fr;
+            }
+            .hero h1 {
+                font-size: 44px;
+            }
+        }
+
+        /* Game Box Styles */
+        .game-card {
+            background-color: var(--surface-color);
+            border: 2px solid var(--border-color);
+            border-radius: 24px;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .game-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--primary-cyan);
+        }
+
+        .score-banner {
+            font-size: 13px;
+            color: var(--text-secondary);
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            background-color: rgba(10, 11, 16, 0.4);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+        }
+
+        .word-slots {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .letter-slot {
+            width: 34px;
+            height: 44px;
+            border-radius: 6px;
+            border: 1.5px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.02);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 700;
+            font-family: monospace;
+            transition: all 0.2s ease;
+        }
+
+        .letter-slot.guessed {
+            border-color: var(--primary-cyan);
+            color: var(--primary-cyan);
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+        }
+
+        .letter-slot.missed {
+            border-color: var(--neon-red);
+            color: var(--neon-red);
+        }
+
+        .keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .key {
+            height: 38px;
+            flex: 1;
+            max-width: 32px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .key:hover {
+            border-color: var(--text-secondary);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .key.hit {
+            border-color: var(--neon-green);
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--neon-green);
+            cursor: default;
+        }
+
+        .key.miss {
+            border-color: rgba(255, 255, 255, 0.1);
+            background-color: var(--bg-color);
+            color: var(--text-muted);
+            cursor: default;
+        }
+
+        /* Modal overlay */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 11, 16, 0.9);
+            border-radius: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            text-align: center;
+            padding: 24px;
+            max-width: 320px;
+            border-radius: 16px;
+            border: 2px solid var(--border-color);
+            background-color: rgba(22, 23, 34, 0.95);
+        }
+
+        .modal-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 12px;
+        }
+
+        .modal.won .modal-title {
+            color: var(--neon-green);
+        }
+
+        .modal.lost .modal-title {
+            color: var(--neon-red);
+        }
+
+        .modal-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .modal-word {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: monospace;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+        }
+
+        .modal.won .modal-word { color: var(--primary-cyan); }
+        .modal.lost .modal-word { color: var(--neon-red); }
+
+        /* Setup Guides */
+        ol {
+            padding-left: 20px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 16px;
+        }
+
+        li strong {
+            color: var(--text-primary);
+        }
+
+        code {
+            font-family: monospace;
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 3px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+            color: var(--primary-cyan);
+        }
+
+        .code-block {
+            display: block;
+            padding: 16px;
+            margin: 12px 0;
+            overflow-x: auto;
+        }
+
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="container nav-container">
+            <div class="logo">NEON HANGMAN</div>
+            <nav>
+                <ul>
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#demo">Play Web Demo</a></li>
+                    <li><a href="#architecture">Architecture</a></li>
+                    <li><a href="#setup">Setup Guide</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container">
+            <div class="badge-container">
+                <span class="badge">Kotlin</span>
+                <span class="badge">Jetpack Compose</span>
+                <span class="badge">Material 3</span>
+            </div>
+            <h1>Premium Android Gaming<br>On Your Device</h1>
+            <p>Experience Hangman reimagined. Features responsive vector canvas animations, custom word categories, hints, streak counters, and full dark-mode layouts.</p>
+            <a href="#demo" class="btn">Play Web Demo</a>
+        </div>
+    </div>
+
+    <!-- Overview / Features -->
+    <section id="overview" class="container">
+        <h2 class="section-title">Game Features</h2>
+        <div class="grid">
+            <div class="card">
+                <div class="card-icon">🎨</div>
+                <h3>Stunning Neon Theme</h3>
+                <p>Designed with glassmorphism, responsive accent state colors, custom fonts, and an immersive dark interface that looks premium and feels fluid.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">📐</div>
+                <h3>Dynamic Canvas Vector</h3>
+                <p>Custom vector engine rendering the gallows and animating the hangman parts step-by-step using line interpolation and circle arcs.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">🎹</div>
+                <h3>Responsive QWERTY Keyboard</h3>
+                <p>Responsive keyboard layouts built with Compose weight modifiers, fitting phone and tablet widths perfectly without key compression.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Play Web Demo -->
+    <section id="demo" style="background-color: rgba(22, 23, 34, 0.2);">
+        <div class="container">
+            <h2 class="section-title">Playable Web Demo</h2>
+            <div class="demo-layout">
+                <div>
+                    <h3 style="font-family: 'Outfit'; font-size: 24px; margin-bottom: 16px;">Try it Right Here!</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 24px;">We've ported the visual assets, styling, and game mechanics of the Android Kotlin app directly to HTML5 and Canvas so you can experience it live in your browser.</p>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; color: var(--text-secondary);">
+                        <li>✨ Click keyboard letters to make guesses.</li>
+                        <li>✨ See limbs animate dynamically on incorrect hits.</li>
+                        <li>✨ Reach a streak and set a new personal record!</li>
+                    </ul>
+                </div>
+                
+                <!-- Web Hangman Widget -->
+                <div class="game-card">
+                    <div class="game-header">
+                        <span class="game-title">DEMO ROUND</span>
+                        <span id="score-banner" class="score-banner">Streak: 0</span>
+                    </div>
+
+                    <!-- Canvas -->
+                    <div class="canvas-container">
+                        <canvas id="hangman-canvas" width="280" height="200"></canvas>
+                    </div>
+
+                    <!-- Word slots -->
+                    <div id="word-slots" class="word-slots"></div>
+
+                    <!-- Keyboard -->
+                    <div id="web-keyboard" class="keyboard"></div>
+
+                    <!-- Popup overlay -->
+                    <div id="modal-overlay" class="overlay">
+                        <div id="result-modal" class="modal">
+                            <h3 id="modal-title" class="modal-title">VICTORY</h3>
+                            <p id="modal-desc" class="modal-desc">You guessed the word correctly!</p>
+                            <div id="modal-word" class="modal-word">KOTLIN</div>
+                            <button id="btn-restart" class="btn" style="padding: 10px 20px; font-size: 14px;">PLAY AGAIN</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture -->
+    <section id="architecture" class="container">
+        <h2 class="section-title">Technical Architecture</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>ViewModel State Management</h3>
+                <p>The app relies on <code>MainScreenViewModel</code> which exposes a single, read-only <code>GameState</code> flow. Redux-style state flows prevent race conditions and ensure UI consistency.</p>
+            </div>
+            <div class="card">
+                <h3>State Freezing Overlay</h3>
+                <p>Features state-freezing hooks inside the main Compose loop. When a round ends, details are locked locally. This prevents the next round's word from blinking on the card during the dialog fade transition.</p>
+            </div>
+            <div class="card">
+                <h3>Modern Jetpack Nav 3</h3>
+                <p>Uses the latest <code>androidx.navigation3</code> framework to organize screens and activities using type-safe serialization keys.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Setup Guide -->
+    <section id="setup" class="container">
+        <h2 class="section-title">Getting Started</h2>
+        <ol>
+            <li>
+                <strong>Prerequisites</strong>
+                <p>Ensure you have the latest stable version of <strong>Android Studio</strong> installed.</p>
+            </li>
+            <li>
+                <strong>Clone / Locate Files</strong>
+                <p>Locate the project folder inside your workspace workspace directory: <code>c:\Users\lawli\OneDrive\Desktop\antig</code>.</p>
+            </li>
+            <li>
+                <strong>Open in Android Studio</strong>
+                <p>Select <strong>File > Open</strong> inside Android Studio, navigate to the folder, and click OK. Android Studio will automatically build the project dependencies.</p>
+            </li>
+            <li>
+                <strong>Build & Run</strong>
+                <p>Run the project on a virtual device emulator (AVD) or a connected phone by clicking the green <strong>Run</strong> button in the toolbar.</p>
+            </li>
+        </ol>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Ytivarg303 / HangmanGame. Documentation designed with Dark Neon styling.</p>
+        </div>
+    </footer>
+
+    <!-- Interactive Game Script -->
+    <script>
+        const words = [
+            { word: 'KOTLIN', hint: 'Modern language for Android development' },
+            { word: 'COMPOSE', hint: 'Modern declarative UI toolkit' },
+            { word: 'ANDROID', hint: 'Google mobile operating system' },
+            { word: 'GRADLE', hint: 'Build automation tool for Android' },
+            { word: 'ACTIVITY', hint: 'Android component representing a screen' },
+            { word: 'INTENT', hint: 'Messaging object to request action' }
+        ];
+
+        let currentWord = '';
+        let guessedLetters = new Set();
+        let incorrectGuesses = 0;
+        let streak = 0;
+        let isGameOver = false;
+
+        const canvas = document.getElementById('hangman-canvas');
+        const ctx = canvas.getContext('2d');
+        const wordSlotsContainer = document.getElementById('word-slots');
+        const keyboardContainer = document.getElementById('web-keyboard');
+        const scoreBanner = document.getElementById('score-banner');
+        const overlay = document.getElementById('modal-overlay');
+        const modal = document.getElementById('result-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
+        const modalWord = document.getElementById('modal-word');
+        const btnRestart = document.getElementById('btn-restart');
+
+        // Initial Game Setup
+        function initGame() {
+            const randomPair = words[Math.floor(Math.random() * words.length)];
+            currentWord = randomPair.word;
+            guessedLetters.clear();
+            incorrectGuesses = 0;
+            isGameOver = false;
+            overlay.classList.remove('visible');
+
+            // Draw gallows base
+            drawGallows();
+            // Build slots
+            renderSlots();
+            // Build keys
+            renderKeyboard();
+        }
+
+        // Draw Gallows
+        function drawGallows() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#373954'; // DarkBorder
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Base
+            ctx.beginPath();
+            ctx.moveTo(w * 0.15, h * 0.9);
+            ctx.lineTo(w * 0.55, h * 0.9);
+            ctx.stroke();
+
+            // Pole
+            ctx.strokeStyle = '#6366F1'; // NeonIndigo
+            ctx.beginPath();
+            ctx.moveTo(w * 0.32, h * 0.9);
+            ctx.lineTo(w * 0.32, h * 0.08);
+            ctx.stroke();
+
+            // Beam
+            ctx.beginPath();
+            ctx.moveTo(w * 0.32, h * 0.08);
+            ctx.lineTo(w * 0.70, h * 0.08);
+            ctx.stroke();
+
+            // Brace
+            ctx.beginPath();
+            ctx.moveTo(w * 0.32, h * 0.26);
+            ctx.lineTo(w * 0.44, h * 0.08);
+            ctx.stroke();
+
+            // Rope
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(w * 0.70, h * 0.08);
+            ctx.lineTo(w * 0.70, h * 0.22);
+            ctx.stroke();
+        }
+
+        // Animate Hangman parts
+        function drawPart(partIndex) {
+            ctx.strokeStyle = '#EF4444'; // NeonRed
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+
+            const w = canvas.width;
+            const h = canvas.height;
+            const manX = w * 0.70;
+            const headRadius = h * 0.07;
+            const headCenterY = h * 0.22 + headRadius;
+            const bodyStartY = h * 0.22 + (headRadius * 2);
+            const bodyLength = h * 0.22;
+            const bodyEndY = bodyStartY + bodyLength;
+
+            const armStartY = bodyStartY + (bodyLength * 0.2);
+            const armWidth = w * 0.10;
+            const armHeight = h * 0.08;
+
+            const legWidth = w * 0.09;
+            const legHeight = h * 0.14;
+
+            switch(partIndex) {
+                case 1: // Head
+                    ctx.beginPath();
+                    ctx.arc(manX, headCenterY, headRadius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    break;
+                case 2: // Body
+                    ctx.beginPath();
+                    ctx.moveTo(manX, bodyStartY);
+                    ctx.lineTo(manX, bodyEndY);
+                    ctx.stroke();
+                    break;
+                case 3: // Left Arm
+                    ctx.beginPath();
+                    ctx.moveTo(manX, armStartY);
+                    ctx.lineTo(manX - armWidth, armStartY + armHeight);
+                    ctx.stroke();
+                    break;
+                case 4: // Right Arm
+                    ctx.beginPath();
+                    ctx.moveTo(manX, armStartY);
+                    ctx.lineTo(manX + armWidth, armStartY + armHeight);
+                    ctx.stroke();
+                    break;
+                case 5: // Left Leg
+                    ctx.beginPath();
+                    ctx.moveTo(manX, bodyEndY);
+                    ctx.lineTo(manX - legWidth, bodyEndY + legHeight);
+                    ctx.stroke();
+                    break;
+                case 6: // Right Leg
+                    ctx.beginPath();
+                    ctx.moveTo(manX, bodyEndY);
+                    ctx.lineTo(manX + legWidth, bodyEndY + legHeight);
+                    ctx.stroke();
+                    break;
+            }
+        }
+
+        // Render word slot layout
+        function renderSlots() {
+            wordSlotsContainer.innerHTML = '';
+            for (let char of currentWord) {
+                const slot = document.createElement('div');
+                slot.className = 'letter-slot';
+                if (guessedLetters.has(char)) {
+                    slot.textContent = char;
+                    slot.className += ' guessed';
+                } else if (isGameOver && incorrectGuesses >= 6) {
+                    slot.textContent = char;
+                    slot.className += ' missed';
+                }
+                wordSlotsContainer.appendChild(slot);
+            }
+        }
+
+        // Render keyboard keys
+        function renderKeyboard() {
+            keyboardContainer.innerHTML = '';
+            const rows = [
+                ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+                ['Z', 'X', 'C', 'V', 'B', 'N', 'M']
+            ];
+
+            rows.forEach(rowKeys => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row';
+
+                rowKeys.forEach(letter => {
+                    const keyBtn = document.createElement('button');
+                    keyBtn.className = 'key';
+                    keyBtn.textContent = letter;
+
+                    if (guessedLetters.has(letter)) {
+                        if (currentWord.includes(letter)) {
+                            keyBtn.className += ' hit';
+                        } else {
+                            keyBtn.className += ' miss';
+                        }
+                    }
+
+                    keyBtn.addEventListener('click', () => handleGuess(letter));
+                    rowDiv.appendChild(keyBtn);
+                });
+                keyboardContainer.appendChild(rowDiv);
+            });
+        }
+
+        // Process a letter guess
+        function handleGuess(letter) {
+            if (isGameOver || guessedLetters.has(letter)) return;
+
+            guessedLetters.add(letter);
+
+            if (currentWord.includes(letter)) {
+                // Correct guess
+                renderSlots();
+                renderKeyboard();
+
+                // Check win
+                const isWon = [...currentWord].every(char => guessedLetters.has(char));
+                if (isWon) {
+                    isGameOver = true;
+                    streak++;
+                    scoreBanner.textContent = `Streak: ${streak}`;
+                    showEndModal(true);
+                }
+            } else {
+                // Incorrect guess
+                incorrectGuesses++;
+                drawPart(incorrectGuesses);
+                renderKeyboard();
+
+                // Check lose
+                if (incorrectGuesses >= 6) {
+                    isGameOver = true;
+                    streak = 0;
+                    scoreBanner.textContent = `Streak: ${streak}`;
+                    renderSlots(); // Reveal missed letters in red
+                    showEndModal(false);
+                }
+            }
+        }
+
+        // Display results overlay
+        function showEndModal(isWin) {
+            modal.className = 'modal ' + (isWin ? 'won' : 'lost');
+            modalTitle.textContent = isWin ? 'VICTORY' : 'GAME OVER';
+            modalDesc.textContent = isWin 
+                ? 'Brilliant job! You guessed the word correctly.' 
+                : 'Out of guesses! The correct word was:';
+            modalWord.textContent = currentWord;
+            
+            setTimeout(() => {
+                overlay.classList.add('visible');
+            }, 600);
+        }
+
+        // Restart listener
+        btnRestart.addEventListener('click', initGame);
+
+        // Run
+        initGame();
+    </script>
+</body>
+</html>
